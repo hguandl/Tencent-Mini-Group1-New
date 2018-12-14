@@ -1,0 +1,8 @@
+[package]
+name = "rust_bug"
+version = "0.1.0"
+authors = ["john"]
+edition = "2018"
+
+[dependencies]
+regex = "1"

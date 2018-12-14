@@ -1,0 +1,4 @@
+ digraph "(?P<graph_name>[\w ]+)" \{
+(?P<node_name>\w+) \[shape=(?P<shape_name>\w+),label="\{(?P<label_name>[\w .]+)\}"\]
+(?P<s_node>\w+) -> (?P<e_node>\w+)
+
