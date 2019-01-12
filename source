@@ -1,0 +1,13 @@
+Mozilla数据集:
+
+获得源代码:
+http://ftp.mozilla.org/pub/firefox/releases/39.0.3/
+
+获得bug reports:
+https://crash-stats.mozilla.com
+
+获得具体的bug:
+https://bugzilla.mozilla.org/show_bug.cgi?id=1505094
+
+得到call graph的一个方法
+https://blog.csdn.net/u010740725/article/details/51387810
