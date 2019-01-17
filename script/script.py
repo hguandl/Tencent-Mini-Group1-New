@@ -69,7 +69,7 @@ def crash_report(product = "Firefox",version = "64.0rc1",nums_buck = 1,url_2_buc
                         bodies['bucket']=str(parse.unquote(url_2_bucket))
                         bodies['crash_id']=str(problems[k]['href'])
                         bodies['crash_stack']=functions
-                        print(bodies)
+                        bodies['other_stack']=other_functions
                         f_csv.writerows(bodies)
                 print(url_3)
                 functions=[]
