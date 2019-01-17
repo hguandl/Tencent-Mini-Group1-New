@@ -1,19 +1,20 @@
 #/usr/bin/env python3
 
-import os
-import shutil
-
-
 class CtagsInfo(object):
+    __tab_list = [
+        None,
+        None,
+        'line',
+        'filename',
+        'signature'
+    ]
+
     def __init__(self, raw_str):
         self.pt = 0
         self.raw_str = raw_str
         self.info = { }
-        self._find(None)
-        self._find(None)
-        self._find('line')
-        self._find('filename')
-        self._find('signature')
+        for i in range(len(CtagsInfo.__tab_list)):
+            self._find(i)
 
     def __seek(self) -> int:
         pt = self.pt
@@ -21,19 +22,21 @@ class CtagsInfo(object):
             pt += 1
         return pt
         
-    def __next(self, name) -> int:
-        if name == 'signature':
-            return None
+    def __next(self) -> int:
         pt = self.pt
         while self.raw_str[pt:pt + 1] != ' ':
             pt += 1
         return pt
 
-    def _find(self, name) -> str:
+    def _find(self, idx):
         self.pt = self.__seek()
-        end = self.__next(name)
+        if idx == len(CtagsInfo.__tab_list) - 1:
+            end = None
+        else:
+            end = self.__next()
+        if CtagsInfo.__tab_list[idx] is not None:
+            self.info[CtagsInfo.__tab_list[idx]] = self.raw_str[self.pt:end]
         self.pt = end
-        self.info[name] = self.raw_str[self.pt:end]
 
     def get(self, key):
         return self.info.get(key)

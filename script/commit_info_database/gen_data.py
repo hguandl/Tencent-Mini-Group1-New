@@ -1,10 +1,9 @@
 #/usr/bin/env python3
 
 import os
-import shutil
-from parser import CtagsInfo, GitBlameInfo
-
 from subprocess import run, PIPE
+
+from parser import CtagsInfo, GitBlameInfo
 
 SRC = '../../data/nginx/src/core'
 CTAGS = '/usr/local/bin/ctags'
@@ -23,7 +22,7 @@ for file in os.listdir(SRC):
         if line == '':
             continue
         info_list.append(CtagsInfo(line))
-        print(info_list[-1].get('signature'))
+        print(info_list[-1].info)
 
     r = run(['git', 'blame', '-c', '-l', file], cwd=SRC, stdout=PIPE, stderr=PIPE)
     git_list = r.stdout.decode('UTF-8').split('\n')
