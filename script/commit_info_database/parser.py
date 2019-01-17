@@ -35,7 +35,10 @@ class CtagsInfo(object):
         else:
             end = self.__next()
         if CtagsInfo.__tab_list[idx] is not None:
-            self.info[CtagsInfo.__tab_list[idx]] = self.raw_str[self.pt:end]
+            if CtagsInfo.__tab_list[idx] == 'line':
+                self.info[CtagsInfo.__tab_list[idx]] = int(self.raw_str[self.pt:end])
+            else:
+                self.info[CtagsInfo.__tab_list[idx]] = self.raw_str[self.pt:end]
         self.pt = end
 
     def get(self, key):
@@ -54,7 +57,7 @@ class GitBlameInfo(object):
         if name == 'author':
             return s[1:]
         if name == 'line':
-            return s[:s.find(')')]
+            return int(s[:s.find(')')])
         return s
 
     def __init__(self, raw_str):
@@ -69,3 +72,5 @@ class GitBlameInfo(object):
     def get(self, key):
         return self.info.get(key)
 
+    def __eq__(self, other):
+        return self.get('hash') == other.get('hash')
