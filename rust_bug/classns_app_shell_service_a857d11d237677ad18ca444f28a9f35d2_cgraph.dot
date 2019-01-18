@@ -1,0 +1,16 @@
+digraph "nsAppShellService::JustCreateTopWindow"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="nsAppShellService::\lJustCreateTopWindow",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="nsAppShellService::\lEnsurePrivateHiddenWindow",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classns_app_shell_service.html#abb6dd4662182b169076a3ca94d0231ca"];
+  Node2 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="nsAppShellService::\lCreateHiddenWindowHelper",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classns_app_shell_service.html#ab5e22b60d9e0f9f8f817c9084c3e2575"];
+  Node3 -> Node1 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="nsAppShellService::\lCalculateWindowZLevel",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classns_app_shell_service.html#ace842bcbc2460ee680db1579fe54130f"];
+  Node1 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="nsXULWindow::WasRegistered",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classns_x_u_l_window.html#ac103266a2fc3168c92bc74a199b04881"];
+}

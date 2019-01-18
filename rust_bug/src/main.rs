@@ -5,15 +5,17 @@ use std::env;
 use std::fmt;
 use std::fs;
 use std::process::Command;
+
 struct AnalysisRes {
     call_pairs: HashMap<String, HashSet<String>>,
     node_fn: HashMap<String, String>,
+    fn_node: HashMap<String, String>
 }
 impl fmt::Display for AnalysisRes {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "There are {} functions, and {} call pairs",
+            "There are {} functions, and {} call pairs\n",
             self.node_fn.len(),
             self.call_pairs
                 .iter()
@@ -39,35 +41,27 @@ impl fmt::Display for AnalysisRes {
     }
 }
 fn demangle(mangled: &str) -> String {
-    String::from_utf8(
-        Command::new("c++filt")
-            .arg("-n")
-            .arg(mangled)
-            .output()
-            .expect("Fail to demangle")
-            .stdout,
-    )
-    .expect("Fail to convert")
+    str::replace(mangled,"\\l","")
 }
 fn analyse(dotcontent: &str, regex_vec: &Vec<Regex>) -> AnalysisRes {
     let node_regex = &regex_vec[1];
     let dir_regex = &regex_vec[2];
     let mut call_pairs_map = HashMap::new();
     let mut node_fn_map = HashMap::new();
+    let mut fn_node_map = HashMap::new();
     for node in node_regex.captures_iter(dotcontent) {
         call_pairs_map.insert(String::from(&node["node_name"]), HashSet::new());
         node_fn_map.insert(
             String::from(&node["node_name"]),
             demangle(&node["label_name"]),
         );
-        println!("Node {} inserted", &node["node_name"]);
+        fn_node_map.insert(
+            String::from(&node["label_name"]),
+            demangle(&node["node_name"])
+            );
     }
     for direct in dir_regex.captures_iter(dotcontent) {
-        println!(
-            "From {} to {} inserted",
-            &direct["s_node"], &direct["e_node"]
-        );
-        call_pairs_map
+            call_pairs_map
             .get_mut(&direct["s_node"])
             .unwrap()
             .insert(String::from(&direct["e_node"]));
@@ -75,6 +69,7 @@ fn analyse(dotcontent: &str, regex_vec: &Vec<Regex>) -> AnalysisRes {
     let res = AnalysisRes {
         call_pairs: call_pairs_map,
         node_fn: node_fn_map,
+        fn_node: fn_node_map
     };
     res
 }
@@ -82,22 +77,23 @@ fn stack_expansion(
     stack_trace: HashSet<String>,
     call_pairs_map: &HashMap<String, HashSet<String>>,
     depth: u32,
-) -> HashSet<String> {
-    let mut res = HashSet::new();
+) -> Vec<HashSet<String>> {
+    let mut res = Vec::new();
     let next_set = &mut HashSet::new();
     let pre_set = &mut HashSet::new();
     pre_set.extend(stack_trace.iter().cloned());
-    res.extend(stack_trace.iter().cloned());
+    res.push(stack_trace.clone());
     for i in 0..depth {
         println!("-------In depth {}-------", i);
         for x in pre_set.iter() {
-            next_set.extend(call_pairs_map[x].iter().cloned());
-            res.extend(next_set.iter().cloned());
+            if call_pairs_map.contains_key(x) {
+                next_set.extend(call_pairs_map[x].iter().cloned());
+            }
         }
+        res.push(next_set.clone());
         pre_set.clear();
         std::mem::swap(next_set, pre_set);
     }
-    println!("Total {} node inserted", res.len());
     res
 }
 fn read_regex(filename: &str) -> Vec<Regex> {
@@ -110,15 +106,19 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let filename = &args[1];
     let regex = &args[2];
+    let expanding_func = &args[3];
     let contents = &fs::read_to_string(filename).expect("Some thing is wrong");
     let regex_vec = read_regex(regex);
 
-    println!("Doing call_pairs");
+    println!("Doing call_pairs\n");
     let res = analyse(contents, &regex_vec);
-    println!("{}", res);
-    let _fail_trace = stack_expansion(
-        res.call_pairs.get("Node0x5642d48d0890").unwrap().clone(),
+    let fail_trace = stack_expansion(
+        res.call_pairs.get("Node1").unwrap().clone(),
         &res.call_pairs,
-        1,
+        5,
     );
+    println!("{}\n",res);
+    for (idx, set) in fail_trace.iter().enumerate() {
+        println!("In depth {}, {} Functions",idx,set.len())
+    }
 }
