@@ -9,7 +9,12 @@ def crash_report(product="Firefox", version="64.0.2", nums_buck=1, url_2_bucket=
     # 初始化
     f = open('test.csv', 'w', encoding='utf-8', newline='')
     headers = ['bucket', 'crash_id', 'crash_stack', 'other_stack']
-    f_csv = csv.DictWriter(f, headers)
+
+    f_csv = csv.DictWriter(f, headers, 
+        quoting=1,
+        lineterminator='\n',
+        delimiter='\t'
+        )
     f_csv.writeheader()
     bodies = dict()
     functions = []
