@@ -7,6 +7,7 @@ from subprocess import run, PIPE
 import pydbc
 from parser import CtagsInfo, GitBlameInfo
 
+REPO = '../../data/nginx'
 SRC = '../../data/nginx/src/core'
 CTAGS = '/usr/local/bin/ctags'
 
@@ -57,48 +58,57 @@ def find_func(line_num):
 """
 
 def main():
-    for file in os.listdir(SRC):
-        if os.path.splitext(file)[1] not in EXT:
+    explore(REPO)
+
+def explore(path):
+    # print(path + ':')
+    for entry in os.listdir(path):
+        real_path = f'{path}/{entry}'
+        if os.path.isfile(real_path):
+            if os.path.splitext(entry)[1] in EXT:
+                process(real_path.replace(REPO + '/', ''))
+        else:
+            explore(real_path)
+
+
+def process(file):
+    # print(f'-------- {file} --------')
+
+    info_list = []
+    r = run([CTAGS, '-x', '--c-kinds=f', file], cwd=REPO, stdout=PIPE, stderr=PIPE)
+    ctags_list = r.stdout.decode('UTF-8').split('\n')
+    for line in ctags_list:
+        if line == '':
             continue
-
-        # print(f'-------- {file} --------')
-
-        info_list = []
-        r = run([CTAGS, '-x', '--c-kinds=f', file], cwd=SRC, stdout=PIPE, stderr=PIPE)
-        ctags_list = r.stdout.decode('UTF-8').split('\n')
-        for line in ctags_list:
-            if line == '':
-                continue
-            info_list.append(CtagsInfo(line))
-        info_list.sort(key=line_order)
+        info_list.append(CtagsInfo(line))
+    info_list.sort(key=line_order)
 
 
-        blame_list = []
-        r = run(['git', 'blame', '-c', '-l', file], cwd=SRC, stdout=PIPE, stderr=PIPE)
-        git_list = r.stdout.decode('UTF-8').split('\n')
-        for line in git_list:
-            if line == '':
-                continue
-            blame_list.append(GitBlameInfo(line))
+    blame_list = []
+    r = run(['git', 'blame', '-c', '-l', file], cwd=REPO, stdout=PIPE, stderr=PIPE)
+    git_list = r.stdout.decode('UTF-8').split('\n')
+    for line in git_list:
+        if line == '':
+            continue
+        blame_list.append(GitBlameInfo(line))
 
-        # for i in range(len(blame_list)):
-        #     print(f'line {i} is in function {find_func(i)}')
+    # for i in range(len(blame_list)):
+    #     print(f'line {i} is in function {find_func(i)}')
 
-        function_set = { }
-        for i in info_list:
-            function_set[i.get('signature')] = []
-        for i in blame_list:
-            func = find_func(info_list, i.get('line'))
-            if func == 'global':
-                continue
-            if i not in function_set[func]:
-                function_set[func].append(i)
+    function_set = { }
+    for i in info_list:
+        function_set[i.get('signature')] = []
+    for i in blame_list:
+        func = find_func(info_list, i.get('line'))
+        if func == 'global':
+            continue
+        if i not in function_set[func]:
+            function_set[func].append(i)
 
-        for i in function_set:
-            for j in function_set[i]:
-                pydbc.add_record(j.get('hash'), j.get('author'), i, j.get('time'), file)
-        
-        # sys.exit(0)
+    for i in function_set:
+        for j in function_set[i]:
+            pydbc.add_record(j.get('hash'), j.get('author'), i, j.get('time'), file)
+
 
 if __name__ == '__main__':
     pydbc.start()
