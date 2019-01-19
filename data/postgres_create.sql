@@ -8,24 +8,23 @@ CREATE TABLE "Authors" (
 
 
 
-CREATE TABLE "Functions" (
+CREATE TABLE "Signatures" (
 	"id" serial,
-	"signature" VARCHAR(255) NOT NULL UNIQUE,
-	CONSTRAINT Functions_pk PRIMARY KEY ("id")
+	"signature" text NOT NULL UNIQUE,
+	CONSTRAINT Signatures_pk PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
 );
 
 
 
-CREATE TABLE "Lines" (
+CREATE TABLE "Changes" (
 	"id" serial NOT NULL,
 	"commit_id" integer NOT NULL,
 	"author_id" integer NOT NULL,
-	"function_id" integer NOT NULL,
+	"signature_id" integer NOT NULL,
 	"file_id" integer NOT NULL,
-	"line_no" integer NOT NULL,
-	CONSTRAINT Lines_pk PRIMARY KEY ("id")
+	CONSTRAINT Changes_pk PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
 );
@@ -55,10 +54,10 @@ CREATE TABLE "Files" (
 
 
 
-ALTER TABLE "Lines" ADD CONSTRAINT "Lines_fk0" FOREIGN KEY ("commit_id") REFERENCES "Commits"("id");
-ALTER TABLE "Lines" ADD CONSTRAINT "Lines_fk1" FOREIGN KEY ("author_id") REFERENCES "Authors"("id");
-ALTER TABLE "Lines" ADD CONSTRAINT "Lines_fk2" FOREIGN KEY ("function_id") REFERENCES "Functions"("id");
-ALTER TABLE "Lines" ADD CONSTRAINT "Lines_fk3" FOREIGN KEY ("file_id") REFERENCES "Files"("id");
+ALTER TABLE "Changes" ADD CONSTRAINT "Changes_fk0" FOREIGN KEY ("commit_id") REFERENCES "Commits"("id");
+ALTER TABLE "Changes" ADD CONSTRAINT "Changes_fk1" FOREIGN KEY ("author_id") REFERENCES "Authors"("id");
+ALTER TABLE "Changes" ADD CONSTRAINT "Changes_fk2" FOREIGN KEY ("signature_id") REFERENCES "Signatures"("id");
+ALTER TABLE "Changes" ADD CONSTRAINT "Changes_fk3" FOREIGN KEY ("file_id") REFERENCES "Files"("id");
 
 
 
