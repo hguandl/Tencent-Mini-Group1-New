@@ -1,7 +1,6 @@
 #/usr/bin/env python3
 
 import os
-import sys
 from subprocess import run, PIPE
 
 import pydbc
@@ -57,19 +56,23 @@ def find_func(line_num):
     return 'global'
 """
 
+obj = []
+
 def main():
     explore(REPO)
+    for i in range(len(obj)):
+        print(f'[{i + 1}/{len(obj)}]\t{obj[i]}')
+        process(obj[i])
 
 def explore(path):
-    # print(path + ':')
+    global obj
     for entry in os.listdir(path):
         real_path = f'{path}/{entry}'
         if os.path.isfile(real_path):
             if os.path.splitext(entry)[1] in EXT:
-                process(real_path.replace(REPO + '/', ''))
+                obj.append(real_path.replace(REPO + '/', ''))
         else:
             explore(real_path)
-
 
 def process(file):
     # print(f'-------- {file} --------')

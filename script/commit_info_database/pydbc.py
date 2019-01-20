@@ -1,7 +1,6 @@
 #/usr/bin/env python3
 
 import psycopg2
-from psycopg2.extensions import AsIs
 
 def start():
 	global conn
