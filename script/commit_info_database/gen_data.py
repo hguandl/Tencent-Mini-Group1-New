@@ -7,7 +7,6 @@ import pydbc
 from parser import CtagsInfo, GitBlameInfo
 
 REPO = '../../data/nginx'
-SRC = '../../data/nginx/src/core'
 CTAGS = '/usr/local/bin/ctags'
 
 EXT = ['.c', '.cc', '.cpp']
